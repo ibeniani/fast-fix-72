@@ -181,9 +181,9 @@ export default function Footer() {
             </h4>
             <div className="space-y-3">
               {[
-                { icon: <Phone size={14} />, text: "06 XX XX XX XX" },
-                { icon: <Mail size={14} />, text: "contact@fastfix72.fr" },
-                { icon: <MapPin size={14} />, text: "Le Mans, Sarthe (72)" },
+                { icon: <Phone size={14} />, text: "06 62 59 51 96" },
+                { icon: <Mail size={14} />, text: "Beniani.pro@gmail.com" },
+                { icon: <MapPin size={14} />, text: "Sablé-sur-Sarthe (72300)" },
               ].map((item) => (
                 <div key={item.text} className="flex items-center gap-2">
                   <span style={{ color: "#00D4FF", flexShrink: 0 }}>{item.icon}</span>
@@ -212,10 +212,10 @@ export default function Footer() {
                 Horaires
               </div>
               <div className="text-xs" style={{ color: "rgba(230, 237, 243, 0.45)" }}>
-                Lun–Ven : 9h00 – 19h00
+                24h/24 — 7j/7
               </div>
               <div className="text-xs" style={{ color: "rgba(230, 237, 243, 0.45)" }}>
-                Samedi : 9h00 – 17h00
+                Toujours disponible
               </div>
             </div>
           </div>

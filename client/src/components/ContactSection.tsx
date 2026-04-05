@@ -11,32 +11,32 @@ const contactInfo = [
   {
     icon: <Phone size={20} />,
     label: "Téléphone",
-    value: "06 XX XX XX XX",
-    sub: "Lun–Sam, 9h–19h",
+    value: "06 62 59 51 96",
+    sub: "24h/24 — 7j/7",
     color: "#00D4FF",
-    href: "tel:+33600000000",
+    href: "tel:+33662595196",
   },
   {
     icon: <Mail size={20} />,
     label: "Email",
-    value: "contact@fastfix72.fr",
-    sub: "Réponse sous 24h",
+    value: "Beniani.pro@gmail.com",
+    sub: "Réponse rapide",
     color: "#00FF88",
-    href: "mailto:contact@fastfix72.fr",
+    href: "mailto:Beniani.pro@gmail.com",
   },
   {
     icon: <MapPin size={20} />,
     label: "Adresse",
-    value: "Le Mans, Sarthe (72)",
-    sub: "Parking disponible",
+    value: "Sablé-sur-Sarthe (72300)",
+    sub: "Accès facile",
     color: "#00D4FF",
     href: "#",
   },
   {
     icon: <Clock size={20} />,
     label: "Horaires",
-    value: "Lun–Ven : 9h–19h",
-    sub: "Sam : 9h–17h",
+    value: "24h/24 — 7j/7",
+    sub: "Toujours disponible",
     color: "#00FF88",
     href: "#",
   },
@@ -223,24 +223,24 @@ export default function ContactSection() {
               }}
             >
               <MapView
-                initialCenter={{ lat: 48.0066, lng: 0.1989 }}
+                initialCenter={{ lat: 47.8053, lng: -0.3213 }}
                 initialZoom={15}
                 onMapReady={(map) => {
                   const marker = new google.maps.marker.AdvancedMarkerElement({
                     map,
-                    position: { lat: 48.0066, lng: 0.1989 },
-                    title: "Fast Fix 72 — Le Mans",
+                    position: { lat: 47.8053, lng: -0.3213 },
+                    title: "Fast Fix 72 — Sablé-sur-Sarthe",
                   });
                   const infoWindow = new google.maps.InfoWindow({
                     content: `
                       <div style="color: #0D1117; font-family: 'Rajdhani', sans-serif; padding: 8px;">
                         <div style="font-weight: bold; font-size: 1rem; margin-bottom: 0.5rem; color: #00D4FF;">Fast Fix 72</div>
                         <div style="font-size: 0.875rem; margin-bottom: 0.25rem;">Réparation de téléphones</div>
-                        <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.5rem;">Le Mans, Sarthe (72)</div>
+                        <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.5rem;">Sablé-sur-Sarthe (72300)</div>
                         <div style="font-size: 0.75rem; color: #666; margin-top: 0.5rem; border-top: 1px solid #ddd; padding-top: 0.5rem;">
                           <div><strong>Horaires :</strong></div>
-                          <div>Lun–Ven : 9h–19h</div>
-                          <div>Sam : 9h–17h</div>
+                          <div>24h/24 — 7j/7</div>
+                          <div style="margin-top: 0.5rem;"><strong>Tél :</strong> 06 62 59 51 96</div>
                         </div>
                       </div>
                     `,

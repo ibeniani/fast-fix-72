@@ -190,9 +190,9 @@ export default function HeroSection() {
                 lineHeight: "1.7",
               }}
             >
-              Fast Fix 72, votre spécialiste en réparation de smartphones dans la Sarthe. 
+              Fast Fix 72, votre spécialiste en réparation de smartphones à Sablé-sur-Sarthe (72300). 
               Écran cassé, batterie défaillante, connecteur endommagé — nous intervenons 
-              rapidement avec des pièces de qualité et une garantie sur toutes nos réparations.
+              rapidement avec des pièces de qualité et une garantie sur toutes nos réparations. Disponible 24h/24 7j/7.
             </p>
 
             {/* CTA Buttons */}
