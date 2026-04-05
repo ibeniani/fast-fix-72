@@ -4,6 +4,18 @@
    ============================================================ */
 
 import { useState } from "react";
+
+const REPAIR_TYPES = [
+  "Remplacement écran",
+  "Remplacement batterie",
+  "Remplacement connecteur",
+  "Remplacement caméra",
+  "Nettoyage/Dépoussiérage",
+  "Remplacement boutons",
+  "Réparation eau/humidité",
+  "Remplacement vitre arrière",
+  "Autre",
+];
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -27,6 +39,8 @@ export default function AdminDashboard() {
   const [isRepairDialogOpen, setIsRepairDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
   const [editingRepair, setEditingRepair] = useState<any>(null);
+  const [selectedRepairType, setSelectedRepairType] = useState<string>("");
+  const [customRepairType, setCustomRepairType] = useState<string>("");
 
   // Queries
   const clientsQuery = trpc.clients.list.useQuery();
@@ -329,9 +343,36 @@ export default function AdminDashboard() {
                           <Textarea id="issueDescription" name="issueDescription" required />
                         </div>
                         <div>
-                          <Label htmlFor="repairType">Type de réparation</Label>
-                          <Input id="repairType" name="repairType" placeholder="Remplacement écran..." />
+                          <Label htmlFor="repairType">Type de réparation *</Label>
+                          <Select value={selectedRepairType} onValueChange={(value) => {
+                            setSelectedRepairType(value);
+                            setCustomRepairType("");
+                          }} required>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Sélectionnez un type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {REPAIR_TYPES.map((type) => (
+                                <SelectItem key={type} value={type}>
+                                  {type}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <input type="hidden" name="repairType" value={selectedRepairType === "Autre" ? customRepairType : selectedRepairType} />
                         </div>
+                        {selectedRepairType === "Autre" && (
+                          <div>
+                            <Label htmlFor="customRepairType">Précisez le type de réparation *</Label>
+                            <Input 
+                              id="customRepairType" 
+                              placeholder="Ex: Remplacement microphone" 
+                              value={customRepairType}
+                              onChange={(e) => setCustomRepairType(e.target.value)}
+                              required
+                            />
+                          </div>
+                        )}
                         <div>
                           <Label htmlFor="estimatedCost">Coût estimé</Label>
                           <Input id="estimatedCost" name="estimatedCost" type="number" step="0.01" />
@@ -341,8 +382,8 @@ export default function AdminDashboard() {
                     {editingRepair && (
                       <>
                         <div>
-                          <Label htmlFor="status">Statut</Label>
-                          <Select name="status" defaultValue={editingRepair?.status}>
+                          <Label htmlFor="status">Statut *</Label>
+                          <Select name="status" defaultValue={editingRepair?.status} required>
                             <SelectTrigger>
                               <SelectValue />
                             </SelectTrigger>
