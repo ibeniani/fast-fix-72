@@ -11,7 +11,7 @@ const REPAIR_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663517700784/ZfH
 const stats = [
   { icon: <Users size={20} />, value: "500+", label: "Clients satisfaits", color: "#00D4FF" },
   { icon: <Award size={20} />, value: "5 ans", label: "D'expérience", color: "#00FF88" },
-  { icon: <Clock size={20} />, value: "1h", label: "Délai moyen", color: "#00D4FF" },
+  { icon: <Clock size={20} />, value: "30min", label: "Délai moyen", color: "#00D4FF" },
   { icon: <MapPin size={20} />, value: "72", label: "Sarthe", color: "#00FF88" },
 ];
 

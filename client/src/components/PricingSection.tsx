@@ -11,12 +11,12 @@ const brands = [
     name: "iPhone",
     logo: "🍎",
     repairs: [
-      { name: "Remplacement écran (série 11-13)", price: "89€ - 149€" },
-      { name: "Remplacement écran (série 14-15)", price: "129€ - 199€" },
+      { name: "Remplacement écran (série 11-13)", price: "49€ - 129€" },
+      { name: "Remplacement écran (série 14-15)", price: "69€ - 149€" },
       { name: "Remplacement batterie", price: "49€ - 79€" },
-      { name: "Connecteur Lightning / USB-C", price: "59€ - 89€" },
+      { name: "Connecteur Lightning / USB-C", price: "29€ - 89€" },
       { name: "Caméra arrière", price: "79€ - 129€" },
-      { name: "Bouton Home / Face ID", price: "69€ - 99€" },
+      { name: "Bouton Home / Face ID", price: "29€ - 99€" },
     ],
   },
   {
