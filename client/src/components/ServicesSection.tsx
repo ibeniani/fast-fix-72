@@ -25,7 +25,7 @@ const services = [
     description:
       "Écran fissuré ou cassé ? Nous remplaçons les écrans LCD et OLED de toutes marques avec des pièces de qualité.",
     color: "#00D4FF",
-    time: "1h",
+    time: "30min",
     popular: true,
   },
   {
