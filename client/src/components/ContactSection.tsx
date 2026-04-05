@@ -5,6 +5,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle } from "lucide-react";
+import { MapView } from "./Map";
 
 const contactInfo = [
   {
@@ -214,31 +215,42 @@ export default function ContactSection() {
               </a>
             ))}
 
-            {/* Map placeholder */}
+            {/* Google Maps Interactive */}
             <div
-              className="rounded-xl overflow-hidden flex-1 min-h-32"
+              className="rounded-xl overflow-hidden flex-1 min-h-96"
               style={{
-                background: "rgba(22, 27, 34, 0.7)",
                 border: "1px solid rgba(0, 212, 255, 0.12)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "column",
-                gap: "0.5rem",
-                padding: "1.5rem",
               }}
             >
-              <MapPin size={28} style={{ color: "#00D4FF", opacity: 0.6 }} />
-              <p
-                className="text-sm text-center"
-                style={{ color: "rgba(230, 237, 243, 0.4)" }}
-              >
-                Le Mans, Sarthe (72)
-                <br />
-                <span style={{ color: "#00D4FF", fontSize: "0.75rem" }}>
-                  Adresse exacte sur demande
-                </span>
-              </p>
+              <MapView
+                initialCenter={{ lat: 48.0066, lng: 0.1989 }}
+                initialZoom={15}
+                onMapReady={(map) => {
+                  const marker = new google.maps.marker.AdvancedMarkerElement({
+                    map,
+                    position: { lat: 48.0066, lng: 0.1989 },
+                    title: "Fast Fix 72 — Le Mans",
+                  });
+                  const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                      <div style="color: #0D1117; font-family: 'Rajdhani', sans-serif; padding: 8px;">
+                        <div style="font-weight: bold; font-size: 1rem; margin-bottom: 0.5rem; color: #00D4FF;">Fast Fix 72</div>
+                        <div style="font-size: 0.875rem; margin-bottom: 0.25rem;">Réparation de téléphones</div>
+                        <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.5rem;">Le Mans, Sarthe (72)</div>
+                        <div style="font-size: 0.75rem; color: #666; margin-top: 0.5rem; border-top: 1px solid #ddd; padding-top: 0.5rem;">
+                          <div><strong>Horaires :</strong></div>
+                          <div>Lun–Ven : 9h–19h</div>
+                          <div>Sam : 9h–17h</div>
+                        </div>
+                      </div>
+                    `,
+                  });
+                  marker.addListener("click", () => {
+                    infoWindow.open(map, marker);
+                  });
+                  infoWindow.open(map, marker);
+                }}
+              />
             </div>
           </div>
 
