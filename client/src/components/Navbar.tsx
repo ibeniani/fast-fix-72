@@ -63,20 +63,12 @@ export default function Navbar() {
             >
               <Zap size={18} className="text-[#0D1117]" fill="#0D1117" />
             </div>
-            <div className="flex flex-col leading-none">
-              <span
-                className="font-display text-sm font-bold tracking-widest"
-                style={{ color: "#00D4FF", fontFamily: "'Orbitron', sans-serif" }}
-              >
-                FAST FIX
-              </span>
-              <span
-                className="font-display text-xs font-bold tracking-widest"
-                style={{ color: "#00FF88", fontFamily: "'Orbitron', sans-serif" }}
-              >
-                72
-              </span>
-            </div>
+            <span
+              className="font-display text-sm font-bold tracking-widest"
+              style={{ color: "#00D4FF", fontFamily: "'Orbitron', sans-serif" }}
+            >
+              FAST FIX 72
+            </span>
           </a>
 
           {/* Desktop nav */}
