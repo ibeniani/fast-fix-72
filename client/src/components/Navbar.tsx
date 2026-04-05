@@ -107,8 +107,61 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Auth & CTA Buttons - Hidden for security */}
-          <div className="hidden"></div>
+          {/* Auth & CTA Buttons - Admin button visible only when authenticated as admin */}
+          <div className="hidden md:flex items-center gap-2">
+            {isAuthenticated && user?.role === "admin" && (
+              <button
+                onClick={() => navigate("/admin")}
+                className="px-4 py-2 text-sm font-medium rounded transition-all duration-200"
+                style={{
+                  fontFamily: "'Rajdhani', sans-serif",
+                  fontWeight: 600,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                  color: "#00FF88",
+                  border: "1px solid #00FF88",
+                  background: "rgba(0, 255, 136, 0.05)",
+                }}
+              >
+                Admin
+              </button>
+            )}
+            {isAuthenticated ? (
+              <button
+                onClick={() => logout()}
+                className="px-4 py-2 text-sm font-medium rounded transition-all duration-200"
+                style={{
+                  fontFamily: "'Rajdhani', sans-serif",
+                  fontWeight: 600,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                  color: "#00D4FF",
+                  border: "1px solid #00D4FF",
+                  background: "rgba(0, 212, 255, 0.05)",
+                }}
+              >
+                <LogOut size={16} className="inline mr-1" />
+                Déconnexion
+              </button>
+            ) : (
+              <a
+                href={getLoginUrl()}
+                className="px-4 py-2 text-sm font-medium rounded transition-all duration-200 inline-flex items-center gap-1"
+                style={{
+                  fontFamily: "'Rajdhani', sans-serif",
+                  fontWeight: 600,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                  color: "#00D4FF",
+                  border: "1px solid #00D4FF",
+                  background: "rgba(0, 212, 255, 0.05)",
+                }}
+              >
+                <LogIn size={16} />
+                Connexion
+              </a>
+            )}
+          </div>
 
           {/* Mobile menu toggle */}
           <button
