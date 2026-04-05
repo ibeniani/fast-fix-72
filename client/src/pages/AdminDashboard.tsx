@@ -16,15 +16,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Edit2, Trash2, Eye } from "lucide-react";
+import { Plus, Edit2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const [selectedTab, setSelectedTab] = useState("clients");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [isClientDialogOpen, setIsClientDialogOpen] = useState(false);
+  const [isRepairDialogOpen, setIsRepairDialogOpen] = useState(false);
+  const [editingClient, setEditingClient] = useState<any>(null);
+  const [editingRepair, setEditingRepair] = useState<any>(null);
 
   // Queries
   const clientsQuery = trpc.clients.list.useQuery();
@@ -59,30 +61,39 @@ export default function AdminDashboard() {
     );
   }
 
-  const handleAddClient = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSaveClient = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const clientData = {
+      firstName: formData.get("firstName") as string,
+      lastName: formData.get("lastName") as string,
+      phone: formData.get("phone") as string,
+      email: formData.get("email") as string || undefined,
+      address: formData.get("address") as string || undefined,
+      city: formData.get("city") as string || undefined,
+      postalCode: formData.get("postalCode") as string || undefined,
+      notes: formData.get("notes") as string || undefined,
+    };
+
     try {
-      await createClientMutation.mutateAsync({
-        firstName: formData.get("firstName") as string,
-        lastName: formData.get("lastName") as string,
-        phone: formData.get("phone") as string,
-        email: formData.get("email") as string,
-        address: formData.get("address") as string,
-        city: formData.get("city") as string,
-        postalCode: formData.get("postalCode") as string,
-        notes: formData.get("notes") as string,
-      });
-      toast.success("Client ajouté avec succès");
-      setIsDialogOpen(false);
+      if (editingClient) {
+        await updateClientMutation.mutateAsync({ id: editingClient.id, ...clientData });
+        toast.success("Client modifié avec succès");
+      } else {
+        await createClientMutation.mutateAsync(clientData);
+        toast.success("Client ajouté avec succès");
+      }
+      setIsClientDialogOpen(false);
+      setEditingClient(null);
       clientsQuery.refetch();
       (e.target as HTMLFormElement).reset();
     } catch (error) {
-      toast.error("Erreur lors de l'ajout du client");
+      toast.error(editingClient ? "Erreur lors de la modification" : "Erreur lors de l'ajout");
     }
   };
 
   const handleDeleteClient = async (id: number) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce client ?")) return;
     try {
       await deleteClientMutation.mutateAsync({ id });
       toast.success("Client supprimé");
@@ -92,29 +103,42 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleAddRepair = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSaveRepair = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    
     try {
-      await createRepairMutation.mutateAsync({
-        clientId: parseInt(formData.get("clientId") as string),
-        deviceType: formData.get("deviceType") as string,
-        deviceModel: formData.get("deviceModel") as string,
-        issueDescription: formData.get("issueDescription") as string,
-        repairType: formData.get("repairType") as string,
-        estimatedCost: formData.get("estimatedCost") as string,
-        notes: formData.get("notes") as string,
-      });
-      toast.success("Réparation ajoutée avec succès");
-      setIsDialogOpen(false);
+      if (editingRepair) {
+        await updateRepairMutation.mutateAsync({
+          id: editingRepair.id,
+          status: (formData.get("status") as any) || undefined,
+          actualCost: formData.get("actualCost") as string || undefined,
+          notes: formData.get("notes") as string || undefined,
+        });
+        toast.success("Réparation modifiée avec succès");
+      } else {
+        await createRepairMutation.mutateAsync({
+          clientId: parseInt(formData.get("clientId") as string),
+          deviceType: formData.get("deviceType") as string,
+          deviceModel: formData.get("deviceModel") as string,
+          issueDescription: formData.get("issueDescription") as string,
+          repairType: formData.get("repairType") as string || undefined,
+          estimatedCost: formData.get("estimatedCost") as string || undefined,
+          notes: formData.get("notes") as string || undefined,
+        });
+        toast.success("Réparation ajoutée avec succès");
+      }
+      setIsRepairDialogOpen(false);
+      setEditingRepair(null);
       repairsQuery.refetch();
       (e.target as HTMLFormElement).reset();
     } catch (error) {
-      toast.error("Erreur lors de l'ajout de la réparation");
+      toast.error(editingRepair ? "Erreur lors de la modification" : "Erreur lors de l'ajout");
     }
   };
 
   const handleDeleteRepair = async (id: number) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cette réparation ?")) return;
     try {
       await deleteRepairMutation.mutateAsync({ id });
       toast.success("Réparation supprimée");
@@ -142,56 +166,63 @@ export default function AdminDashboard() {
           <TabsContent value="clients" className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Gestion des clients</h2>
-              <Dialog open={isDialogOpen && selectedTab === "clients"} onOpenChange={setIsDialogOpen}>
+              <Dialog open={isClientDialogOpen} onOpenChange={(open) => {
+                setIsClientDialogOpen(open);
+                if (!open) setEditingClient(null);
+              }}>
                 <DialogTrigger asChild>
-                  <Button onClick={() => { setSelectedTab("clients"); setEditingId(null); }}>
+                  <Button onClick={() => setEditingClient(null)}>
                     <Plus className="w-4 h-4 mr-2" />
                     Ajouter un client
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Ajouter un nouveau client</DialogTitle>
-                    <DialogDescription>Remplissez les informations du client</DialogDescription>
+                    <DialogTitle>{editingClient ? "Modifier le client" : "Ajouter un nouveau client"}</DialogTitle>
+                    <DialogDescription>
+                      {editingClient ? "Modifiez les informations du client" : "Remplissez les informations du client"}
+                    </DialogDescription>
                   </DialogHeader>
-                  <form onSubmit={handleAddClient} className="space-y-4">
+                  <form onSubmit={handleSaveClient} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="firstName">Prénom *</Label>
-                        <Input id="firstName" name="firstName" required />
+                        <Input id="firstName" name="firstName" defaultValue={editingClient?.firstName} required />
                       </div>
                       <div>
                         <Label htmlFor="lastName">Nom *</Label>
-                        <Input id="lastName" name="lastName" required />
+                        <Input id="lastName" name="lastName" defaultValue={editingClient?.lastName} required />
                       </div>
                     </div>
                     <div>
                       <Label htmlFor="phone">Téléphone *</Label>
-                      <Input id="phone" name="phone" type="tel" required />
+                      <Input id="phone" name="phone" type="tel" defaultValue={editingClient?.phone} required />
                     </div>
                     <div>
                       <Label htmlFor="email">Email</Label>
-                      <Input id="email" name="email" type="email" />
+                      <Input id="email" name="email" type="email" defaultValue={editingClient?.email} />
                     </div>
                     <div>
                       <Label htmlFor="address">Adresse</Label>
-                      <Input id="address" name="address" />
+                      <Input id="address" name="address" defaultValue={editingClient?.address} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="city">Ville</Label>
-                        <Input id="city" name="city" />
+                        <Input id="city" name="city" defaultValue={editingClient?.city} />
                       </div>
                       <div>
                         <Label htmlFor="postalCode">Code postal</Label>
-                        <Input id="postalCode" name="postalCode" />
+                        <Input id="postalCode" name="postalCode" defaultValue={editingClient?.postalCode} />
                       </div>
                     </div>
                     <div>
                       <Label htmlFor="notes">Notes</Label>
-                      <Textarea id="notes" name="notes" />
+                      <Textarea id="notes" name="notes" defaultValue={editingClient?.notes} />
                     </div>
-                    <Button type="submit" className="w-full">Ajouter le client</Button>
+                    <Button type="submit" className="w-full">
+                      {editingClient ? "Modifier le client" : "Ajouter le client"}
+                    </Button>
                   </form>
                 </DialogContent>
               </Dialog>
@@ -218,10 +249,21 @@ export default function AdminDashboard() {
                           {client.address && <p className="text-sm text-muted-foreground">{client.address}</p>}
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              setEditingClient(client);
+                              setIsClientDialogOpen(true);
+                            }}
+                          >
                             <Edit2 className="w-4 h-4" />
                           </Button>
-                          <Button variant="destructive" size="sm" onClick={() => handleDeleteClient(client.id)}>
+                          <Button 
+                            variant="destructive" 
+                            size="sm" 
+                            onClick={() => handleDeleteClient(client.id)}
+                          >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -237,61 +279,94 @@ export default function AdminDashboard() {
           <TabsContent value="repairs" className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Gestion des réparations</h2>
-              <Dialog open={isDialogOpen && selectedTab === "repairs"} onOpenChange={setIsDialogOpen}>
+              <Dialog open={isRepairDialogOpen} onOpenChange={(open) => {
+                setIsRepairDialogOpen(open);
+                if (!open) setEditingRepair(null);
+              }}>
                 <DialogTrigger asChild>
-                  <Button onClick={() => { setSelectedTab("repairs"); setEditingId(null); }}>
+                  <Button onClick={() => setEditingRepair(null)}>
                     <Plus className="w-4 h-4 mr-2" />
                     Ajouter une réparation
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
-                    <DialogTitle>Ajouter une nouvelle réparation</DialogTitle>
-                    <DialogDescription>Remplissez les informations de la réparation</DialogDescription>
+                    <DialogTitle>{editingRepair ? "Modifier la réparation" : "Ajouter une nouvelle réparation"}</DialogTitle>
+                    <DialogDescription>
+                      {editingRepair ? "Modifiez les informations de la réparation" : "Remplissez les informations de la réparation"}
+                    </DialogDescription>
                   </DialogHeader>
-                  <form onSubmit={handleAddRepair} className="space-y-4">
-                    <div>
-                      <Label htmlFor="clientId">Client *</Label>
-                      <Select name="clientId" required>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionnez un client" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {clientsQuery.data?.map((client) => (
-                            <SelectItem key={client.id} value={client.id.toString()}>
-                              {client.firstName} {client.lastName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="deviceType">Type d'appareil *</Label>
-                        <Input id="deviceType" name="deviceType" placeholder="iPhone, Samsung..." required />
-                      </div>
-                      <div>
-                        <Label htmlFor="deviceModel">Modèle *</Label>
-                        <Input id="deviceModel" name="deviceModel" placeholder="iPhone 14..." required />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="issueDescription">Description du problème *</Label>
-                      <Textarea id="issueDescription" name="issueDescription" required />
-                    </div>
-                    <div>
-                      <Label htmlFor="repairType">Type de réparation</Label>
-                      <Input id="repairType" name="repairType" placeholder="Remplacement écran..." />
-                    </div>
-                    <div>
-                      <Label htmlFor="estimatedCost">Coût estimé</Label>
-                      <Input id="estimatedCost" name="estimatedCost" type="number" step="0.01" />
-                    </div>
+                  <form onSubmit={handleSaveRepair} className="space-y-4">
+                    {!editingRepair && (
+                      <>
+                        <div>
+                          <Label htmlFor="clientId">Client *</Label>
+                          <Select name="clientId" required>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Sélectionnez un client" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {clientsQuery.data?.map((client) => (
+                                <SelectItem key={client.id} value={client.id.toString()}>
+                                  {client.firstName} {client.lastName}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="deviceType">Type d'appareil *</Label>
+                            <Input id="deviceType" name="deviceType" placeholder="iPhone, Samsung..." required />
+                          </div>
+                          <div>
+                            <Label htmlFor="deviceModel">Modèle *</Label>
+                            <Input id="deviceModel" name="deviceModel" placeholder="iPhone 14..." required />
+                          </div>
+                        </div>
+                        <div>
+                          <Label htmlFor="issueDescription">Description du problème *</Label>
+                          <Textarea id="issueDescription" name="issueDescription" required />
+                        </div>
+                        <div>
+                          <Label htmlFor="repairType">Type de réparation</Label>
+                          <Input id="repairType" name="repairType" placeholder="Remplacement écran..." />
+                        </div>
+                        <div>
+                          <Label htmlFor="estimatedCost">Coût estimé</Label>
+                          <Input id="estimatedCost" name="estimatedCost" type="number" step="0.01" />
+                        </div>
+                      </>
+                    )}
+                    {editingRepair && (
+                      <>
+                        <div>
+                          <Label htmlFor="status">Statut</Label>
+                          <Select name="status" defaultValue={editingRepair?.status}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pending">En attente</SelectItem>
+                              <SelectItem value="in_progress">En cours</SelectItem>
+                              <SelectItem value="completed">Complétée</SelectItem>
+                              <SelectItem value="cancelled">Annulée</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="actualCost">Coût réel</Label>
+                          <Input id="actualCost" name="actualCost" type="number" step="0.01" defaultValue={editingRepair?.actualCost} />
+                        </div>
+                      </>
+                    )}
                     <div>
                       <Label htmlFor="notes">Notes</Label>
-                      <Textarea id="notes" name="notes" />
+                      <Textarea id="notes" name="notes" defaultValue={editingRepair?.notes} />
                     </div>
-                    <Button type="submit" className="w-full">Ajouter la réparation</Button>
+                    <Button type="submit" className="w-full">
+                      {editingRepair ? "Modifier la réparation" : "Ajouter la réparation"}
+                    </Button>
                   </form>
                 </DialogContent>
               </Dialog>
@@ -317,18 +392,38 @@ export default function AdminDashboard() {
                             <h3 className="font-semibold">{repair.deviceType} {repair.deviceModel}</h3>
                             <p className="text-sm text-muted-foreground">Client: {client?.firstName} {client?.lastName}</p>
                             <p className="text-sm text-muted-foreground">{repair.issueDescription}</p>
-                            <div className="mt-2 flex gap-4 text-sm">
-                              <span className={`px-2 py-1 rounded ${repair.status === "completed" ? "bg-green-100 text-green-800" : repair.status === "in_progress" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}`}>
-                                {repair.status}
+                            <div className="mt-2 flex gap-4 text-sm flex-wrap">
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                repair.status === "completed" ? "bg-green-100 text-green-800" : 
+                                repair.status === "in_progress" ? "bg-blue-100 text-blue-800" :
+                                repair.status === "cancelled" ? "bg-red-100 text-red-800" :
+                                "bg-gray-100 text-gray-800"
+                              }`}>
+                                {repair.status === "pending" ? "En attente" :
+                                 repair.status === "in_progress" ? "En cours" :
+                                 repair.status === "completed" ? "Complétée" :
+                                 repair.status === "cancelled" ? "Annulée" : repair.status}
                               </span>
                               {repair.estimatedCost && <span>Coût estimé: {repair.estimatedCost}€</span>}
+                              {repair.actualCost && <span>Coût réel: {repair.actualCost}€</span>}
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                setEditingRepair(repair);
+                                setIsRepairDialogOpen(true);
+                              }}
+                            >
                               <Edit2 className="w-4 h-4" />
                             </Button>
-                            <Button variant="destructive" size="sm" onClick={() => handleDeleteRepair(repair.id)}>
+                            <Button 
+                              variant="destructive" 
+                              size="sm" 
+                              onClick={() => handleDeleteRepair(repair.id)}
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
