@@ -28,7 +28,7 @@ const steps = [
     icon: <Wrench size={24} />,
     title: "Réparation express",
     description:
-      "Après votre accord sur le devis, nous réparons votre téléphone en moins d'une heure dans la plupart des cas.",
+      "Après votre accord sur le devis, nous réparons votre téléphone en moins de 30 minutes dans la plupart des cas.",
     color: "#00D4FF",
   },
   {

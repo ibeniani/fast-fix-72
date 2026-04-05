@@ -208,7 +208,7 @@ export default function HeroSection() {
             {/* Stats */}
             <div className="flex flex-wrap gap-6">
               {[
-                { icon: <Clock size={16} />, label: "Réparation en", value: "1h" },
+                { icon: <Clock size={16} />, label: "Réparation en", value: "30min" },
                 { icon: <Shield size={16} />, label: "Garantie", value: "3 mois" },
                 { icon: <Star size={16} />, label: "Clients satisfaits", value: "500+" },
               ].map((stat) => (

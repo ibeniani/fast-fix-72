@@ -49,7 +49,7 @@ const guarantees = [
   "Pièces de qualité garanties",
   "Garantie 3 mois sur toutes les réparations",
   "Devis gratuit et sans engagement",
-  "Réparation en moins d'1 heure pour la plupart des pannes",
+  "Réparation en moins de 30 minutes pour la plupart des pannes",
   "Techniciens certifiés et expérimentés",
   "Données personnelles protégées",
 ];
