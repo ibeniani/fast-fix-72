@@ -1,0 +1,1 @@
+ALTER TABLE `repairs` MODIFY COLUMN `status` enum('waiting_for_repair','waiting_for_client','in_progress','completed','ready_for_pickup','cancelled') NOT NULL DEFAULT 'waiting_for_repair';

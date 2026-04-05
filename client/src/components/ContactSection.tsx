@@ -6,6 +6,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle } from "lucide-react";
 import { MapView } from "./Map";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 const contactInfo = [
   {
@@ -64,11 +66,26 @@ export default function ContactSection() {
     return () => observer.disconnect();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const createQuoteRequest = trpc.quoteRequests.create.useMutation();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
-    setTimeout(() => setSent(false), 5000);
-    setForm({ name: "", phone: "", email: "", device: "", problem: "", message: "" });
+    try {
+      await createQuoteRequest.mutateAsync({
+        name: form.name,
+        email: form.email,
+        phone: form.phone || undefined,
+        device: form.device,
+        problem: form.problem,
+        message: form.message || undefined,
+      });
+      setSent(true);
+      toast.success("Demande de devis envoyée avec succès !");
+      setTimeout(() => setSent(false), 5000);
+      setForm({ name: "", phone: "", email: "", device: "", problem: "", message: "" });
+    } catch (error) {
+      toast.error("Erreur lors de l'envoi de la demande");
+    }
   };
 
   const inputStyle = {

@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, clients, repairs, InsertClient, InsertRepair, Client, Repair } from "../drizzle/schema";
+import { InsertUser, users, clients, repairs, quoteRequests, InsertClient, InsertRepair, Client, Repair, InsertQuoteRequest, QuoteRequest } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -164,4 +164,30 @@ export async function deleteRepair(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   return db.delete(repairs).where(eq(repairs.id, id));
+}
+
+// Quote Requests functions
+export async function listQuoteRequests() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.select().from(quoteRequests);
+}
+
+export async function createQuoteRequest(data: InsertQuoteRequest) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(quoteRequests).values(data);
+  return result;
+}
+
+export async function updateQuoteRequest(id: number, data: Partial<InsertQuoteRequest>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.update(quoteRequests).set(data).where(eq(quoteRequests.id, id));
+}
+
+export async function deleteQuoteRequest(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.delete(quoteRequests).where(eq(quoteRequests.id, id));
 }

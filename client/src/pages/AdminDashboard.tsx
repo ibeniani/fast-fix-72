@@ -45,6 +45,7 @@ export default function AdminDashboard() {
   // Queries
   const clientsQuery = trpc.clients.list.useQuery();
   const repairsQuery = trpc.repairs.list.useQuery();
+  const quoteRequestsQuery = trpc.quoteRequests.list.useQuery();
 
   // Mutations
   const createClientMutation = trpc.clients.create.useMutation();
@@ -53,6 +54,8 @@ export default function AdminDashboard() {
   const createRepairMutation = trpc.repairs.create.useMutation();
   const updateRepairMutation = trpc.repairs.update.useMutation();
   const deleteRepairMutation = trpc.repairs.delete.useMutation();
+  const updateQuoteRequestMutation = trpc.quoteRequests.update.useMutation();
+  const deleteQuoteRequestMutation = trpc.quoteRequests.delete.useMutation();
 
   // Check if user is admin
   if (user?.role !== "admin") {
@@ -172,9 +175,92 @@ export default function AdminDashboard() {
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
           <TabsList>
+            <TabsTrigger value="quote-requests">Demandes de devis ({quoteRequestsQuery.data?.length || 0})</TabsTrigger>
             <TabsTrigger value="clients">Clients ({clientsQuery.data?.length || 0})</TabsTrigger>
             <TabsTrigger value="repairs">Réparations ({repairsQuery.data?.length || 0})</TabsTrigger>
           </TabsList>
+
+          {/* Quote Requests Tab */}
+          <TabsContent value="quote-requests" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Demandes de devis</h2>
+            </div>
+
+            {quoteRequestsQuery.isLoading ? (
+              <div className="text-center py-8">Chargement...</div>
+            ) : quoteRequestsQuery.data?.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  Aucune demande de devis pour le moment
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {quoteRequestsQuery.data?.map((quote) => (
+                  <Card key={quote.id}>
+                    <CardContent className="pt-6">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h3 className="font-semibold">{quote.name}</h3>
+                          <p className="text-sm text-muted-foreground">{quote.email}</p>
+                          {quote.phone && <p className="text-sm text-muted-foreground">{quote.phone}</p>}
+                          <p className="text-sm text-muted-foreground mt-2"><strong>Appareil :</strong> {quote.device}</p>
+                          <p className="text-sm text-muted-foreground"><strong>Problème :</strong> {quote.problem}</p>
+                          {quote.message && <p className="text-sm text-muted-foreground mt-2"><strong>Message :</strong> {quote.message}</p>}
+                          <div className="mt-2 flex gap-2 flex-wrap">
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                              quote.status === "new" ? "bg-blue-100 text-blue-800" :
+                              quote.status === "contacted" ? "bg-yellow-100 text-yellow-800" :
+                              quote.status === "converted" ? "bg-green-100 text-green-800" :
+                              "bg-red-100 text-red-800"
+                            }`}>
+                              {quote.status === "new" ? "Nouveau" :
+                               quote.status === "contacted" ? "Contacté" :
+                               quote.status === "converted" ? "Converti" :
+                               "Rejeté"}
+                            </span>
+                            <span className="text-xs text-muted-foreground">{new Date(quote.createdAt).toLocaleDateString('fr-FR')}</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Select value={quote.status} onValueChange={(value) => {
+                            updateQuoteRequestMutation.mutateAsync({ id: quote.id, status: value as any }).then(() => {
+                              quoteRequestsQuery.refetch();
+                              toast.success("Statut mis à jour");
+                            }).catch(() => toast.error("Erreur lors de la mise à jour"));
+                          }}>
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="new">Nouveau</SelectItem>
+                              <SelectItem value="contacted">Contacté</SelectItem>
+                              <SelectItem value="converted">Converti</SelectItem>
+                              <SelectItem value="rejected">Rejeté</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button 
+                            variant="destructive" 
+                            size="sm" 
+                            onClick={() => {
+                              if (confirm("Êtes-vous sûr de vouloir supprimer cette demande ?")) {
+                                deleteQuoteRequestMutation.mutateAsync({ id: quote.id }).then(() => {
+                                  quoteRequestsQuery.refetch();
+                                  toast.success("Demande supprimée");
+                                }).catch(() => toast.error("Erreur lors de la suppression"));
+                              }
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
 
           {/* Clients Tab */}
           <TabsContent value="clients" className="space-y-4">
@@ -388,9 +474,11 @@ export default function AdminDashboard() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="pending">En attente</SelectItem>
+                              <SelectItem value="waiting_for_repair">En attente de réparation</SelectItem>
+                              <SelectItem value="waiting_for_client">En attente du client</SelectItem>
                               <SelectItem value="in_progress">En cours</SelectItem>
                               <SelectItem value="completed">Complétée</SelectItem>
+                              <SelectItem value="ready_for_pickup">Prête à récupérer</SelectItem>
                               <SelectItem value="cancelled">Annulée</SelectItem>
                             </SelectContent>
                           </Select>
@@ -436,13 +524,16 @@ export default function AdminDashboard() {
                             <div className="mt-2 flex gap-4 text-sm flex-wrap">
                               <span className={`px-2 py-1 rounded text-xs font-medium ${
                                 repair.status === "completed" ? "bg-green-100 text-green-800" : 
+                                repair.status === "ready_for_pickup" ? "bg-green-100 text-green-800" :
                                 repair.status === "in_progress" ? "bg-blue-100 text-blue-800" :
                                 repair.status === "cancelled" ? "bg-red-100 text-red-800" :
                                 "bg-gray-100 text-gray-800"
                               }`}>
-                                {repair.status === "pending" ? "En attente" :
+                                {repair.status === "waiting_for_repair" ? "En attente de réparation" :
+                                 repair.status === "waiting_for_client" ? "En attente du client" :
                                  repair.status === "in_progress" ? "En cours" :
                                  repair.status === "completed" ? "Complétée" :
+                                 repair.status === "ready_for_pickup" ? "Prête à récupérer" :
                                  repair.status === "cancelled" ? "Annulée" : repair.status}
                               </span>
                               {repair.estimatedCost && <span>Coût estimé: {repair.estimatedCost}€</span>}

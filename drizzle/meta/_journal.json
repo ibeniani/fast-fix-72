@@ -15,6 +15,20 @@
       "when": 1775410996576,
       "tag": "0001_right_ricochet",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1775412821556,
+      "tag": "0002_strange_punisher",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1775426641604,
+      "tag": "0003_broad_luke_cage",
+      "breakpoints": true
     }
   ]
 }

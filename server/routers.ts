@@ -63,7 +63,7 @@ export const appRouter = router({
     })).mutation(({ input }) => db.createRepair(input as any)),
     update: adminProcedure.input(z.object({
       id: z.number(),
-      status: z.enum(["pending", "in_progress", "completed", "cancelled"]).optional(),
+      status: z.enum(["waiting_for_repair", "waiting_for_client", "in_progress", "completed", "ready_for_pickup", "cancelled"]).optional(),
       actualCost: z.string().optional(),
       completionDate: z.date().optional(),
       notes: z.string().optional(),
@@ -72,6 +72,25 @@ export const appRouter = router({
       return db.updateRepair(id, data as any);
     }),
     delete: adminProcedure.input(z.object({ id: z.number() })).mutation(({ input }) => db.deleteRepair(input.id)),
+  }),
+  quoteRequests: router({
+    list: adminProcedure.query(() => db.listQuoteRequests()),
+    create: publicProcedure.input(z.object({
+      name: z.string().min(1),
+      email: z.string().email(),
+      phone: z.string().optional(),
+      device: z.string().min(1),
+      problem: z.string().min(1),
+      message: z.string().optional(),
+    })).mutation(({ input }) => db.createQuoteRequest(input)),
+    update: adminProcedure.input(z.object({
+      id: z.number(),
+      status: z.enum(["new", "contacted", "converted", "rejected"]).optional(),
+    })).mutation(({ input }) => {
+      const { id, ...data } = input;
+      return db.updateQuoteRequest(id, data);
+    }),
+    delete: adminProcedure.input(z.object({ id: z.number() })).mutation(({ input }) => db.deleteQuoteRequest(input.id)),
   }),
 });
 

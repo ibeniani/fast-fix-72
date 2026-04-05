@@ -54,7 +54,7 @@ export const repairs = mysqlTable("repairs", {
   deviceType: varchar("deviceType", { length: 50 }).notNull(), // iPhone, Samsung, Huawei, etc.
   deviceModel: varchar("deviceModel", { length: 100 }).notNull(), // iPhone 14, Galaxy S23, etc.
   issueDescription: text("issueDescription").notNull(),
-  status: mysqlEnum("status", ["pending", "in_progress", "completed", "cancelled"]).default("pending").notNull(),
+  status: mysqlEnum("status", ["waiting_for_repair", "waiting_for_client", "in_progress", "completed", "ready_for_pickup", "cancelled"]).default("waiting_for_repair").notNull(),
   estimatedCost: decimal("estimatedCost", { precision: 10, scale: 2 }),
   actualCost: decimal("actualCost", { precision: 10, scale: 2 }),
   repairType: varchar("repairType", { length: 100 }), // Screen replacement, Battery, etc.
@@ -67,3 +67,21 @@ export const repairs = mysqlTable("repairs", {
 
 export type Repair = typeof repairs.$inferSelect;
 export type InsertRepair = typeof repairs.$inferInsert;
+/**
+ * Quote Requests table for Fast Fix 72
+ */
+export const quoteRequests = mysqlTable("quoteRequests", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 20 }),
+  device: varchar("device", { length: 100 }).notNull(),
+  problem: text("problem").notNull(),
+  message: text("message"),
+  status: mysqlEnum("status", ["new", "contacted", "converted", "rejected"]).default("new").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type QuoteRequest = typeof quoteRequests.$inferSelect;
+export type InsertQuoteRequest = typeof quoteRequests.$inferInsert;

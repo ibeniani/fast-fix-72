@@ -166,7 +166,7 @@ export default function HeroSection() {
               className="text-5xl lg:text-7xl font-black mb-4 leading-none"
               style={{ fontFamily: "'Rajdhani', sans-serif" }}
             >
-              <span style={{ color: "#E6EDF3" }}>Votre téléphone</span>
+              <span style={{ color: "#E6EDF3" }}>Fast Fix 72</span>
               <br />
               <span
                 style={{
@@ -176,10 +176,10 @@ export default function HeroSection() {
                   backgroundClip: "text",
                 }}
               >
-                réparé vite.
+                Rapide, efficace et au meilleur prix !
               </span>
               <br />
-              <span style={{ color: "#E6EDF3" }}>Réparé bien.</span>
+              <span style={{ color: "#E6EDF3" }}></span>
             </h1>
 
             <p
