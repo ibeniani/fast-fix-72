@@ -107,43 +107,8 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Auth & CTA Buttons */}
-          <div className="hidden md:flex items-center gap-3">
-            {isAuthenticated && user?.role === "admin" && (
-              <button
-                onClick={() => navigate("/admin")}
-                className="px-4 py-2 text-sm font-medium rounded transition-all duration-200"
-                style={{
-                  fontFamily: "'Rajdhani', sans-serif",
-                  fontWeight: 600,
-                  letterSpacing: "0.05em",
-                  textTransform: "uppercase",
-                  color: "#00FF88",
-                  border: "1px solid #00FF88",
-                  background: "rgba(0, 255, 136, 0.05)",
-                }}
-              >
-                Admin
-              </button>
-            )}
-            {isAuthenticated ? (
-              <button
-                onClick={() => logout()}
-                className="btn-neon text-sm flex items-center gap-2"
-              >
-                <LogOut size={16} />
-                Déconnexion
-              </button>
-            ) : (
-              <a
-                href={getLoginUrl()}
-                className="btn-neon text-sm flex items-center gap-2"
-              >
-                <LogIn size={16} />
-                Connexion
-              </a>
-            )}
-          </div>
+          {/* Auth & CTA Buttons - Hidden for security */}
+          <div className="hidden"></div>
 
           {/* Mobile menu toggle */}
           <button

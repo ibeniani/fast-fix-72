@@ -63,7 +63,12 @@ export const appRouter = router({
     })).mutation(({ input }) => db.createRepair(input as any)),
     update: adminProcedure.input(z.object({
       id: z.number(),
+      deviceType: z.string().optional(),
+      deviceModel: z.string().optional(),
+      issueDescription: z.string().optional(),
+      repairType: z.string().optional(),
       status: z.enum(["waiting_for_repair", "waiting_for_client", "in_progress", "completed", "ready_for_pickup", "cancelled"]).optional(),
+      estimatedCost: z.string().optional(),
       actualCost: z.string().optional(),
       completionDate: z.date().optional(),
       notes: z.string().optional(),

@@ -28,7 +28,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Edit2, Trash2 } from "lucide-react";
+import { Plus, Edit2, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminDashboard() {
@@ -41,6 +41,9 @@ export default function AdminDashboard() {
   const [editingRepair, setEditingRepair] = useState<any>(null);
   const [selectedRepairType, setSelectedRepairType] = useState<string>("");
   const [customRepairType, setCustomRepairType] = useState<string>("");
+  const [clientSearchTerm, setClientSearchTerm] = useState<string>("");
+  const [repairSearchTerm, setRepairSearchTerm] = useState<string>("");
+  const [selectedClientForRepair, setSelectedClientForRepair] = useState<number | null>(null);
 
   // Queries
   const clientsQuery = trpc.clients.list.useQuery();
@@ -128,7 +131,12 @@ export default function AdminDashboard() {
       if (editingRepair) {
         await updateRepairMutation.mutateAsync({
           id: editingRepair.id,
+          deviceType: formData.get("deviceType") as string || undefined,
+          deviceModel: formData.get("deviceModel") as string || undefined,
+          issueDescription: formData.get("issueDescription") as string || undefined,
+          repairType: formData.get("repairType") as string || undefined,
           status: (formData.get("status") as any) || undefined,
+          estimatedCost: formData.get("estimatedCost") as string || undefined,
           actualCost: formData.get("actualCost") as string || undefined,
           notes: formData.get("notes") as string || undefined,
         });
@@ -165,27 +173,39 @@ export default function AdminDashboard() {
     }
   };
 
+  // Filter clients based on search term
+  const filteredClients = clientsQuery.data?.filter(client =>
+    `${client.firstName} ${client.lastName}`.toLowerCase().includes(clientSearchTerm.toLowerCase()) ||
+    client.phone.toLowerCase().includes(clientSearchTerm.toLowerCase())
+  ) || [];
+
+  // Filter repairs based on search term
+  const filteredRepairs = repairsQuery.data?.filter(repair => {
+    const client = clientsQuery.data?.find(c => c.id === repair.clientId);
+    const clientName = client ? `${client.firstName} ${client.lastName}` : "";
+    return clientName.toLowerCase().includes(repairSearchTerm.toLowerCase()) ||
+           repair.deviceModel.toLowerCase().includes(repairSearchTerm.toLowerCase()) ||
+           repair.issueDescription.toLowerCase().includes(repairSearchTerm.toLowerCase());
+  }) || [];
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tableau de bord admin</h1>
-          <p className="text-muted-foreground">Gérez vos clients et vos réparations</p>
+          <h1 className="text-3xl font-bold">Tableau de bord admin</h1>
+          <p className="text-muted-foreground">Gérez vos clients, réparations et demandes de devis</p>
         </div>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-          <TabsList>
-            <TabsTrigger value="quote-requests">Demandes de devis ({quoteRequestsQuery.data?.length || 0})</TabsTrigger>
-            <TabsTrigger value="clients">Clients ({clientsQuery.data?.length || 0})</TabsTrigger>
-            <TabsTrigger value="repairs">Réparations ({repairsQuery.data?.length || 0})</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="clients">Clients</TabsTrigger>
+            <TabsTrigger value="repairs">Réparations</TabsTrigger>
+            <TabsTrigger value="quotes">Demandes de devis</TabsTrigger>
           </TabsList>
 
           {/* Quote Requests Tab */}
-          <TabsContent value="quote-requests" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Demandes de devis</h2>
-            </div>
-
+          <TabsContent value="quotes" className="space-y-4">
+            <h2 className="text-2xl font-bold">Demandes de devis</h2>
             {quoteRequestsQuery.isLoading ? (
               <div className="text-center py-8">Chargement...</div>
             ) : quoteRequestsQuery.data?.length === 0 ? (
@@ -197,66 +217,66 @@ export default function AdminDashboard() {
             ) : (
               <div className="grid gap-4">
                 {quoteRequestsQuery.data?.map((quote) => (
-                  <Card key={quote.id}>
-                    <CardContent className="pt-6">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h3 className="font-semibold">{quote.name}</h3>
-                          <p className="text-sm text-muted-foreground">{quote.email}</p>
-                          {quote.phone && <p className="text-sm text-muted-foreground">{quote.phone}</p>}
-                          <p className="text-sm text-muted-foreground mt-2"><strong>Appareil :</strong> {quote.device}</p>
-                          <p className="text-sm text-muted-foreground"><strong>Problème :</strong> {quote.problem}</p>
-                          {quote.message && <p className="text-sm text-muted-foreground mt-2"><strong>Message :</strong> {quote.message}</p>}
-                          <div className="mt-2 flex gap-2 flex-wrap">
-                            <span className={`px-2 py-1 rounded text-xs font-medium ${
-                              quote.status === "new" ? "bg-blue-100 text-blue-800" :
-                              quote.status === "contacted" ? "bg-yellow-100 text-yellow-800" :
-                              quote.status === "converted" ? "bg-green-100 text-green-800" :
-                              "bg-red-100 text-red-800"
-                            }`}>
-                              {quote.status === "new" ? "Nouveau" :
-                               quote.status === "contacted" ? "Contacté" :
-                               quote.status === "converted" ? "Converti" :
-                               "Rejeté"}
-                            </span>
-                            <span className="text-xs text-muted-foreground">{new Date(quote.createdAt).toLocaleDateString('fr-FR')}</span>
+                    <Card key={quote.id}>
+                      <CardContent className="pt-6">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <h3 className="font-semibold">{quote.name}</h3>
+                            <p className="text-sm text-muted-foreground">{quote.email}</p>
+                            {quote.phone && <p className="text-sm text-muted-foreground">{quote.phone}</p>}
+                            <p className="text-sm text-muted-foreground mt-2"><strong>Appareil :</strong> {quote.device}</p>
+                            <p className="text-sm text-muted-foreground"><strong>Problème :</strong> {quote.problem}</p>
+                            {quote.message && <p className="text-sm text-muted-foreground mt-2"><strong>Message :</strong> {quote.message}</p>}
+                            <div className="mt-2 flex gap-2 flex-wrap">
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                quote.status === "new" ? "bg-blue-100 text-blue-800" :
+                                quote.status === "contacted" ? "bg-yellow-100 text-yellow-800" :
+                                quote.status === "converted" ? "bg-green-100 text-green-800" :
+                                "bg-red-100 text-red-800"
+                              }`}>
+                                {quote.status === "new" ? "Nouveau" :
+                                 quote.status === "contacted" ? "Contacté" :
+                                 quote.status === "converted" ? "Converti" :
+                                 "Rejeté"}
+                              </span>
+                              <span className="text-xs text-muted-foreground">{new Date(quote.createdAt).toLocaleDateString('fr-FR')}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Select value={quote.status} onValueChange={(value) => {
+                              updateQuoteRequestMutation.mutateAsync({ id: quote.id, status: value as any }).then(() => {
+                                quoteRequestsQuery.refetch();
+                                toast.success("Statut mis à jour");
+                              }).catch(() => toast.error("Erreur lors de la mise à jour"));
+                            }}>
+                              <SelectTrigger className="w-32">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="new">Nouveau</SelectItem>
+                                <SelectItem value="contacted">Contacté</SelectItem>
+                                <SelectItem value="converted">Converti</SelectItem>
+                                <SelectItem value="rejected">Rejeté</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <Button 
+                              variant="destructive" 
+                              size="sm" 
+                              onClick={() => {
+                                if (confirm("Êtes-vous sûr de vouloir supprimer cette demande ?")) {
+                                  deleteQuoteRequestMutation.mutateAsync({ id: quote.id }).then(() => {
+                                    quoteRequestsQuery.refetch();
+                                    toast.success("Demande supprimée");
+                                  }).catch(() => toast.error("Erreur lors de la suppression"));
+                                }
+                              }}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Select value={quote.status} onValueChange={(value) => {
-                            updateQuoteRequestMutation.mutateAsync({ id: quote.id, status: value as any }).then(() => {
-                              quoteRequestsQuery.refetch();
-                              toast.success("Statut mis à jour");
-                            }).catch(() => toast.error("Erreur lors de la mise à jour"));
-                          }}>
-                            <SelectTrigger className="w-32">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="new">Nouveau</SelectItem>
-                              <SelectItem value="contacted">Contacté</SelectItem>
-                              <SelectItem value="converted">Converti</SelectItem>
-                              <SelectItem value="rejected">Rejeté</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <Button 
-                            variant="destructive" 
-                            size="sm" 
-                            onClick={() => {
-                              if (confirm("Êtes-vous sûr de vouloir supprimer cette demande ?")) {
-                                deleteQuoteRequestMutation.mutateAsync({ id: quote.id }).then(() => {
-                                  quoteRequestsQuery.refetch();
-                                  toast.success("Demande supprimée");
-                                }).catch(() => toast.error("Erreur lors de la suppression"));
-                              }
-                            }}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
                 ))}
               </div>
             )}
@@ -328,25 +348,38 @@ export default function AdminDashboard() {
               </Dialog>
             </div>
 
+            {/* Search bar for clients */}
+            <div className="relative">
+              <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher par nom ou téléphone..."
+                value={clientSearchTerm}
+                onChange={(e) => setClientSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
             {clientsQuery.isLoading ? (
               <div className="text-center py-8">Chargement...</div>
-            ) : clientsQuery.data?.length === 0 ? (
+            ) : filteredClients.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  Aucun client pour le moment
+                  {clientSearchTerm ? "Aucun client trouvé" : "Aucun client pour le moment"}
                 </CardContent>
               </Card>
             ) : (
               <div className="grid gap-4">
-                {clientsQuery.data?.map((client) => (
+                {filteredClients.map((client) => (
                   <Card key={client.id}>
                     <CardContent className="pt-6">
                       <div className="flex justify-between items-start">
-                        <div>
+                        <div className="flex-1">
                           <h3 className="font-semibold">{client.firstName} {client.lastName}</h3>
                           <p className="text-sm text-muted-foreground">{client.phone}</p>
                           {client.email && <p className="text-sm text-muted-foreground">{client.email}</p>}
                           {client.address && <p className="text-sm text-muted-foreground">{client.address}</p>}
+                          {client.city && <p className="text-sm text-muted-foreground">{client.city} {client.postalCode}</p>}
+                          {client.notes && <p className="text-sm text-muted-foreground mt-2"><strong>Notes :</strong> {client.notes}</p>}
                         </div>
                         <div className="flex gap-2">
                           <Button 
@@ -401,18 +434,25 @@ export default function AdminDashboard() {
                       <>
                         <div>
                           <Label htmlFor="clientId">Client *</Label>
-                          <Select name="clientId" required>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Sélectionnez un client" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {clientsQuery.data?.map((client) => (
-                                <SelectItem key={client.id} value={client.id.toString()}>
-                                  {client.firstName} {client.lastName}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <div className="space-y-2">
+                            <Input
+                              placeholder="Rechercher un client..."
+                              value={clientSearchTerm}
+                              onChange={(e) => setClientSearchTerm(e.target.value)}
+                            />
+                            <Select name="clientId" value={selectedClientForRepair?.toString() || ""} onValueChange={(value) => setSelectedClientForRepair(parseInt(value))} required>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Sélectionnez un client" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {filteredClients.map((client) => (
+                                  <SelectItem key={client.id} value={client.id.toString()}>
+                                    {client.firstName} {client.lastName} ({client.phone})
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
@@ -467,6 +507,24 @@ export default function AdminDashboard() {
                     )}
                     {editingRepair && (
                       <>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="deviceType">Type d'appareil</Label>
+                            <Input id="deviceType" name="deviceType" defaultValue={editingRepair?.deviceType} />
+                          </div>
+                          <div>
+                            <Label htmlFor="deviceModel">Modèle</Label>
+                            <Input id="deviceModel" name="deviceModel" defaultValue={editingRepair?.deviceModel} />
+                          </div>
+                        </div>
+                        <div>
+                          <Label htmlFor="issueDescription">Description du problème</Label>
+                          <Textarea id="issueDescription" name="issueDescription" defaultValue={editingRepair?.issueDescription} />
+                        </div>
+                        <div>
+                          <Label htmlFor="repairType">Type de réparation</Label>
+                          <Input id="repairType" name="repairType" defaultValue={editingRepair?.repairType} />
+                        </div>
                         <div>
                           <Label htmlFor="status">Statut *</Label>
                           <Select name="status" defaultValue={editingRepair?.status} required>
@@ -483,9 +541,15 @@ export default function AdminDashboard() {
                             </SelectContent>
                           </Select>
                         </div>
-                        <div>
-                          <Label htmlFor="actualCost">Coût réel</Label>
-                          <Input id="actualCost" name="actualCost" type="number" step="0.01" defaultValue={editingRepair?.actualCost} />
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="estimatedCost">Coût estimé</Label>
+                            <Input id="estimatedCost" name="estimatedCost" type="number" step="0.01" defaultValue={editingRepair?.estimatedCost} />
+                          </div>
+                          <div>
+                            <Label htmlFor="actualCost">Coût réel</Label>
+                            <Input id="actualCost" name="actualCost" type="number" step="0.01" defaultValue={editingRepair?.actualCost} />
+                          </div>
                         </div>
                       </>
                     )}
@@ -501,17 +565,28 @@ export default function AdminDashboard() {
               </Dialog>
             </div>
 
+            {/* Search bar for repairs */}
+            <div className="relative">
+              <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher par client, modèle ou problème..."
+                value={repairSearchTerm}
+                onChange={(e) => setRepairSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
             {repairsQuery.isLoading ? (
               <div className="text-center py-8">Chargement...</div>
-            ) : repairsQuery.data?.length === 0 ? (
+            ) : filteredRepairs.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  Aucune réparation pour le moment
+                  {repairSearchTerm ? "Aucune réparation trouvée" : "Aucune réparation pour le moment"}
                 </CardContent>
               </Card>
             ) : (
               <div className="grid gap-4">
-                {repairsQuery.data?.map((repair) => {
+                {filteredRepairs.map((repair) => {
                   const client = clientsQuery.data?.find(c => c.id === repair.clientId);
                   return (
                     <Card key={repair.id}>
@@ -536,9 +611,11 @@ export default function AdminDashboard() {
                                  repair.status === "ready_for_pickup" ? "Prête à récupérer" :
                                  repair.status === "cancelled" ? "Annulée" : repair.status}
                               </span>
+                              {repair.repairType && <span><strong>Type:</strong> {repair.repairType}</span>}
                               {repair.estimatedCost && <span>Coût estimé: {repair.estimatedCost}€</span>}
                               {repair.actualCost && <span>Coût réel: {repair.actualCost}€</span>}
                             </div>
+                            {repair.notes && <p className="text-sm text-muted-foreground mt-2"><strong>Notes:</strong> {repair.notes}</p>}
                           </div>
                           <div className="flex gap-2">
                             <Button 

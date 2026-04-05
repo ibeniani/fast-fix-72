@@ -50,20 +50,12 @@ export default function Footer() {
               >
                 <Zap size={20} className="text-[#0D1117]" fill="#0D1117" />
               </div>
-              <div className="flex flex-col leading-none">
-                <span
-                  className="font-bold tracking-widest text-sm"
-                  style={{ color: "#00D4FF", fontFamily: "'Orbitron', sans-serif" }}
-                >
-                  FAST FIX
-                </span>
-                <span
-                  className="font-bold tracking-widest text-xs"
-                  style={{ color: "#00FF88", fontFamily: "'Orbitron', sans-serif" }}
-                >
-                  72
-                </span>
-              </div>
+              <span
+                className="font-bold tracking-widest text-sm"
+                style={{ color: "#00D4FF", fontFamily: "'Orbitron', sans-serif" }}
+              >
+                FAST FIX 72
+              </span>
             </div>
             <p
               className="text-sm leading-relaxed mb-6"
