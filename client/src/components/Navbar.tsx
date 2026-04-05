@@ -4,7 +4,10 @@
    ============================================================ */
 
 import { useState, useEffect } from "react";
-import { Menu, X, Zap } from "lucide-react";
+import { Menu, X, Zap, LogIn, LogOut } from "lucide-react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
+import { useLocation } from "wouter";
 
 const navLinks = [
   { label: "Accueil", href: "#accueil" },
@@ -18,6 +21,8 @@ const navLinks = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
+  const [, navigate] = useLocation();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -102,15 +107,42 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden md:block">
-            <a
-              href="#contact"
-              onClick={(e) => { e.preventDefault(); handleNavClick("#contact"); }}
-              className="btn-neon text-sm"
-            >
-              Devis Gratuit
-            </a>
+          {/* Auth & CTA Buttons */}
+          <div className="hidden md:flex items-center gap-3">
+            {isAuthenticated && user?.role === "admin" && (
+              <button
+                onClick={() => navigate("/admin")}
+                className="px-4 py-2 text-sm font-medium rounded transition-all duration-200"
+                style={{
+                  fontFamily: "'Rajdhani', sans-serif",
+                  fontWeight: 600,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                  color: "#00FF88",
+                  border: "1px solid #00FF88",
+                  background: "rgba(0, 255, 136, 0.05)",
+                }}
+              >
+                Admin
+              </button>
+            )}
+            {isAuthenticated ? (
+              <button
+                onClick={() => logout()}
+                className="btn-neon text-sm flex items-center gap-2"
+              >
+                <LogOut size={16} />
+                Déconnexion
+              </button>
+            ) : (
+              <a
+                href={getLoginUrl()}
+                className="btn-neon text-sm flex items-center gap-2"
+              >
+                <LogIn size={16} />
+                Connexion
+              </a>
+            )}
           </div>
 
           {/* Mobile menu toggle */}
@@ -165,14 +197,39 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
-            <div className="pt-2">
-              <a
-                href="#contact"
-                onClick={(e) => { e.preventDefault(); handleNavClick("#contact"); }}
-                className="btn-neon w-full text-center block"
-              >
-                Devis Gratuit
-              </a>
+            <div className="pt-2 space-y-2">
+              {isAuthenticated && user?.role === "admin" && (
+                <button
+                  onClick={() => { setIsOpen(false); navigate("/admin"); }}
+                  className="w-full px-4 py-3 text-sm font-medium rounded transition-all duration-200"
+                  style={{
+                    fontFamily: "'Rajdhani', sans-serif",
+                    fontWeight: 600,
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
+                    color: "#00FF88",
+                    border: "1px solid #00FF88",
+                    background: "rgba(0, 255, 136, 0.05)",
+                  }}
+                >
+                  Admin
+                </button>
+              )}
+              {isAuthenticated ? (
+                <button
+                  onClick={() => { setIsOpen(false); logout(); }}
+                  className="btn-neon w-full text-center block"
+                >
+                  Déconnexion
+                </button>
+              ) : (
+                <a
+                  href={getLoginUrl()}
+                  className="btn-neon w-full text-center block"
+                >
+                  Connexion
+                </a>
+              )}
             </div>
           </div>
         </div>
