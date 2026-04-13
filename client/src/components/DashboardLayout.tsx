@@ -28,8 +28,7 @@ import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Page 1", path: "/" },
-  { icon: Users, label: "Page 2", path: "/some-path" },
+  { icon: LayoutDashboard, label: "Tableau de bord", path: "/admin" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -223,10 +222,10 @@ function DashboardLayoutContent({
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem
                   onClick={logout}
-                  className="cursor-pointer text-destructive focus:text-destructive"
+                  className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sign out</span>
+                  <span>Déconnexion</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
