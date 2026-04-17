@@ -73,7 +73,7 @@ export type InsertRepair = typeof repairs.$inferInsert;
 export const quoteRequests = mysqlTable("quoteRequests", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
-  email: varchar("email", { length: 320 }).notNull(),
+  email: varchar("email", { length: 320 }),
   phone: varchar("phone", { length: 20 }),
   device: varchar("device", { length: 100 }).notNull(),
   problem: text("problem").notNull(),

@@ -1,0 +1,1 @@
+ALTER TABLE `quoteRequests` MODIFY COLUMN `email` varchar(320);

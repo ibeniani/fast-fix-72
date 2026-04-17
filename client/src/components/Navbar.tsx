@@ -107,11 +107,28 @@ export default function Navbar() {
             ))}
           </div>
 
+          {/* Devis Gratuit button */}
+          <button
+            onClick={() => handleNavClick("#contact")}
+            className="hidden md:inline-flex px-6 py-2 text-sm font-medium rounded transition-all duration-200 ml-4"
+            style={{
+              fontFamily: "'Rajdhani', sans-serif",
+              fontWeight: 600,
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+              color: "#0D1117",
+              background: "linear-gradient(135deg, #00D4FF 0%, #00FF88 100%)",
+              boxShadow: "0 0 20px rgba(0, 212, 255, 0.3)",
+            }}
+          >
+            Devis Gratuit
+          </button>
+
           {/* Admin button - visible only when authenticated as admin */}
           {isAuthenticated && user?.role === "admin" && (
             <button
               onClick={() => navigate("/admin")}
-              className="hidden md:inline-flex px-4 py-2 text-sm font-medium rounded transition-all duration-200"
+              className="hidden md:inline-flex px-4 py-2 text-sm font-medium rounded transition-all duration-200 ml-2"
               style={{
                 fontFamily: "'Rajdhani', sans-serif",
                 fontWeight: 600,
@@ -123,6 +140,26 @@ export default function Navbar() {
               }}
             >
               Admin
+            </button>
+          )}
+
+          {/* Logout button - visible only when authenticated as admin */}
+          {isAuthenticated && user?.role === "admin" && (
+            <button
+              onClick={logout}
+              className="hidden md:inline-flex px-4 py-2 text-sm font-medium rounded transition-all duration-200 ml-2"
+              style={{
+                fontFamily: "'Rajdhani', sans-serif",
+                fontWeight: 600,
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+                color: "#FF4444",
+                border: "1px solid #FF4444",
+                background: "rgba(255, 68, 68, 0.05)",
+              }}
+            >
+              <LogOut size={16} className="mr-2" />
+              Déconnexion
             </button>
           )}
 
