@@ -38,12 +38,10 @@ export default function AdminDashboard() {
   // Vérifier la session admin locale
   useEffect(() => {
     const adminSession = localStorage.getItem("adminSession");
-    if (!adminSession) {
-      navigate("/admin");
-    } else {
+    if (adminSession) {
       setIsAdminLoggedIn(true);
     }
-  }, [navigate]);
+  }, []);
   const [isClientDialogOpen, setIsClientDialogOpen] = useState(false);
   const [isRepairDialogOpen, setIsRepairDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
@@ -73,7 +71,19 @@ export default function AdminDashboard() {
   if (!isAdminLoggedIn) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Chargement...</p>
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Accès refusé</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Vous devez être connecté pour accéder au tableau de bord admin.
+            </p>
+            <Button onClick={() => navigate("/admin")} className="w-full">
+              Aller à la connexion
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
