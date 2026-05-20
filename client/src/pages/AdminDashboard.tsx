@@ -3,7 +3,7 @@
    Gestion des clients et des réparations
    ============================================================ */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const REPAIR_TYPES = [
   "Remplacement écran",
@@ -16,7 +16,6 @@ const REPAIR_TYPES = [
   "Remplacement vitre arrière",
   "Autre",
 ];
-import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -32,9 +31,19 @@ import { Plus, Edit2, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminDashboard() {
-  const { user } = useAuth();
   const [, navigate] = useLocation();
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [selectedTab, setSelectedTab] = useState("clients");
+
+  // Vérifier la session admin locale
+  useEffect(() => {
+    const adminSession = localStorage.getItem("adminSession");
+    if (!adminSession) {
+      navigate("/admin");
+    } else {
+      setIsAdminLoggedIn(true);
+    }
+  }, [navigate]);
   const [isClientDialogOpen, setIsClientDialogOpen] = useState(false);
   const [isRepairDialogOpen, setIsRepairDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
@@ -60,23 +69,11 @@ export default function AdminDashboard() {
   const updateQuoteRequestMutation = trpc.quoteRequests.update.useMutation();
   const deleteQuoteRequestMutation = trpc.quoteRequests.delete.useMutation();
 
-  // Check if user is admin
-  if (user?.role !== "admin") {
+  // Attendre la vérification de session
+  if (!isAdminLoggedIn) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Accès refusé</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              Vous n'avez pas les permissions pour accéder au tableau de bord admin.
-            </p>
-            <Button onClick={() => navigate("/")} className="w-full">
-              Retour à l'accueil
-            </Button>
-          </CardContent>
-        </Card>
+        <p>Chargement...</p>
       </div>
     );
   }
