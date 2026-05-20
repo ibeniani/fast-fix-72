@@ -4,9 +4,7 @@
    ============================================================ */
 
 import { useState, useEffect } from "react";
-import { Menu, X, Zap, LogIn, LogOut } from "lucide-react";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
+import { Menu, X, Zap, LogOut } from "lucide-react";
 import { useLocation } from "wouter";
 
 const navLinks = [
@@ -21,8 +19,13 @@ const navLinks = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { user, logout, isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const adminSession = localStorage.getItem("adminSession");
+    setIsAdminLoggedIn(!!adminSession);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -124,10 +127,10 @@ export default function Navbar() {
             Devis Gratuit
           </button>
 
-          {/* Admin button - visible only when authenticated as admin */}
-          {isAuthenticated && user?.role === "admin" && (
+          {/* Admin button - visible only when logged in as admin locally */}
+          {isAdminLoggedIn && (
             <button
-              onClick={() => navigate("/admin")}
+              onClick={() => navigate("/admin/dashboard")}
               className="hidden md:inline-flex px-4 py-2 text-sm font-medium rounded transition-all duration-200 ml-2"
               style={{
                 fontFamily: "'Rajdhani', sans-serif",
@@ -143,10 +146,14 @@ export default function Navbar() {
             </button>
           )}
 
-          {/* Logout button - visible only when authenticated as admin */}
-          {isAuthenticated && user?.role === "admin" && (
+          {/* Logout button - visible only when logged in as admin locally */}
+          {isAdminLoggedIn && (
             <button
-              onClick={logout}
+              onClick={() => {
+                localStorage.removeItem("adminSession");
+                setIsAdminLoggedIn(false);
+                navigate("/");
+              }}
               className="hidden md:inline-flex px-4 py-2 text-sm font-medium rounded transition-all duration-200 ml-2"
               style={{
                 fontFamily: "'Rajdhani', sans-serif",
@@ -216,9 +223,9 @@ export default function Navbar() {
               </a>
             ))}
             <div className="pt-2 space-y-2">
-              {isAuthenticated && user?.role === "admin" && (
+              {isAdminLoggedIn && (
                 <button
-                  onClick={() => { setIsOpen(false); navigate("/admin"); }}
+                  onClick={() => { setIsOpen(false); navigate("/admin/dashboard"); }}
                   className="w-full px-4 py-3 text-sm font-medium rounded transition-all duration-200"
                   style={{
                     fontFamily: "'Rajdhani', sans-serif",
@@ -233,20 +240,27 @@ export default function Navbar() {
                   Admin
                 </button>
               )}
-              {isAuthenticated ? (
+              {isAdminLoggedIn && (
                 <button
-                  onClick={() => { setIsOpen(false); logout(); }}
-                  className="btn-neon w-full text-center block"
+                  onClick={() => {
+                    setIsOpen(false);
+                    localStorage.removeItem("adminSession");
+                    setIsAdminLoggedIn(false);
+                    navigate("/");
+                  }}
+                  className="w-full px-4 py-3 text-sm font-medium rounded transition-all duration-200"
+                  style={{
+                    fontFamily: "'Rajdhani', sans-serif",
+                    fontWeight: 600,
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
+                    color: "#FF4444",
+                    border: "1px solid #FF4444",
+                    background: "rgba(255, 68, 68, 0.05)",
+                  }}
                 >
                   Déconnexion
                 </button>
-              ) : (
-                <a
-                  href={getLoginUrl()}
-                  className="btn-neon w-full text-center block"
-                >
-                  Connexion
-                </a>
               )}
             </div>
           </div>

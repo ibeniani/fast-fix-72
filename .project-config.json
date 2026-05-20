@@ -1,0 +1,41 @@
+{
+  "build_command": "pnpm run build",
+  "capabilities": [
+    "db",
+    "server",
+    "user"
+  ],
+  "dev_command": "pnpm run dev",
+  "env_vars": {
+    "DATABASE_URL": "mysql://2fzm5u36s3TQfTR.root:7fu1QTIjsYu9KYQ1N75m@gateway05.us-east-1.prod.aws.tidbcloud.com:4000/ZfHsYWdv8GXj6XQcz2Wakv?ssl={\"rejectUnauthorized\":true}"
+  },
+  "experiments": null,
+  "git_remote": {
+    "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663517700784/ZfHsYWdv8GXj6XQcz2Wakv",
+    "access_key_id": "ASIAZV3A2ECZHULL7VLB",
+    "secret_access_key": "GnFARI408XXJhBLKWKBWAffjvlWcZ+7tAbQc46eB",
+    "session_token": "IQoJb3JpZ2luX2VjECIaCXVzLWVhc3QtMSJHMEUCIHucB7uUUJOLgj8/VEEPQquvDY60XF6RJ+DqvnCG9JuqAiEA3yC2ZSqT3f31HV98le8R8IDYpXuhlso7fE/nnJdnuJAq/wMI6///////////ARAEGgw2NjUzODYwOTg4NjYiDM3Ei3yg/tb9m5H9cirTA1oh7TKH+Q0cO8v75A1735H1u655aqbAx5qHjTOyrOW+8tU73zus/L98VcU8xSlcAww9ASx10RsgQDJ6xTz/vTWjpKovyYbhianhnkY2o2CfgOHAXd1E7A2/tvRI0JVvA9rt3R5CWMxtnHvuqA5FwznwceSoytSJTMO5uoBHZzmwe1GVncCsl2nuXWdA5zMkqA9cNzgTL6JfcSxhaExphlzOdyJoHCzf7q9RaUpuHe/9EJYOoZmEryI4eQ+YZIj7n9lHOdxu+HhAnCp42+OVa81JA+joCLUXHvsrcP0ctmTzbqnI8uAC08suzDdFBu0RhGLIPr2ijO8+KCYT1wtxh8JUGAW/tINiaAbU2tKCCiM+t2RFKf+BISxwrX1s3bfG8/0U7CxlRGSrVkWnBQ36h/f5CwwwC+y/GdWXtvHcZep390ZhSSRic8wVyZiyQGLQTW0DAFV8zeihoMtxrdOPwEpevU9a9i90bdrCOwbOXbmeRGpXl8o7FYxPbHelOTzzMmBhB3x0PkB1fZmPpslZB2Uu/VbBnSvbzB7i99duAOyRUQEtDhaOpj98nrCbUde3uKGMPsYg2XE7KSEbgxdQW4TqfsdmzD6YqL/UpBTjlDQ0CURcMJD+tdAGOp0BQ+DauHtKtCCVgRStWXdTcB+GLpCWiO+I4YvqKx9DNOAzqO+TsBzp69Gk99xo++edAnLfFhWbmh1d1CF5euEnhDpjE0UKnOmt82eGh3JExy2vnSAan2GnQqgnIMw4ondcWvbPH+Xjtuo9WeXlG9EVrzb9Z2K/uZCMJA5MrsCFFmT15qq39hzWSk0hua4sElTZ7sDCx4Hnvibe8iBdoQ==",
+    "expiration": "2026-05-20T21:29:52.000Z"
+  },
+  "name": "fast-fix-72",
+  "path": "/home/ubuntu/fast-fix-72",
+  "port": 3000,
+  "secrets": {
+    "BUILT_IN_FORGE_API_KEY": "JWHEMakSsP8VcE6Lym4ic2",
+    "BUILT_IN_FORGE_API_URL": "https://forge.manus.ai",
+    "JWT_SECRET": "9hMARVXVystdr3zjoL27p9",
+    "OAUTH_SERVER_URL": "https://api.manus.im",
+    "OWNER_NAME": "Camille Camille",
+    "OWNER_OPEN_ID": "BF6cbTLLT8CQ4p6Q9yMkB2",
+    "VITE_ANALYTICS_ENDPOINT": "https://manus-analytics.com",
+    "VITE_ANALYTICS_WEBSITE_ID": "85f3958d-f2ae-4d85-a5ea-b57d654e8cd7",
+    "VITE_APP_ID": "ZfHsYWdv8GXj6XQcz2Wakv",
+    "VITE_APP_LOGO": "https://files.manuscdn.com/user_upload_by_module/web_dev_logo/310519663517700784/yXoQCbMjMFUdHdAP.png",
+    "VITE_APP_TITLE": "Fast Fix 72 - Réparation de Téléphones",
+    "VITE_FRONTEND_FORGE_API_KEY": "VSxEQ7rqfTA6qrsg3gmYUq",
+    "VITE_FRONTEND_FORGE_API_URL": "https://forge.manus.ai",
+    "VITE_OAUTH_PORTAL_URL": "https://manus.im"
+  },
+  "template_id": "web-db-user",
+  "test_command": "pnpm test"
+}
