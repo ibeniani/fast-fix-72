@@ -18,7 +18,8 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
 
   if (!isUnauthorized) return;
 
-  window.location.href = getLoginUrl();
+  // Redirection désactivée - utiliser le système de connexion local
+  // window.location.href = getLoginUrl();
 };
 
 queryClient.getQueryCache().subscribe(event => {
