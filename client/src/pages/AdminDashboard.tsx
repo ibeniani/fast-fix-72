@@ -80,7 +80,7 @@ export default function AdminDashboard() {
               Vous devez être connecté pour accéder au tableau de bord admin.
             </p>
             <Button onClick={() => navigate("/admin")} className="w-full">
-              Aller à la connexion
+              Retour à la connexion
             </Button>
           </CardContent>
         </Card>
